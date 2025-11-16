@@ -837,4 +837,4 @@ def consulta_inventario_piezas():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
