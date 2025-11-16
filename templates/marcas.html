@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marcas.css' ) }}">
+  <title>Registro de Marcas</title>
+  <style>
+    .w-70 { width: 70%; }
+    .styled-table tbody tr:hover { background-color: #f1f1f1; }
+    mark { background-color: yellow; font-weight: bold; }
+  </style>
+</head>
+<body class="bg-light">
+
+<div class="container-fluid p-3">
+  <h1 class="text-center mb-4">Registro de Marcas</h1>
+
+  <!-- Botón Registrar -->
+  <div class="text-center mb-3">
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#insertarModal">
+      <i class="bi bi-plus-circle"></i> Registrar Marca
+    </button>
+  </div>
+
+  <!-- Buscador -->
+  <div class="input-group justify-content-center my-4" style="max-width: 600px; margin: auto;">
+    <span class="input-group-text bg-primary text-white d-flex align-items-center justify-content-center" style="height: 50px;">
+      <i class="bi bi-search"></i>
+    </span>
+    <input type="text" id="buscador" class="form-control" placeholder="Buscar por ID, Marca o Modelo" style="height: 50px;" autofocus>
+  </div>
+
+  <!-- Tabla de marcas -->
+  <div class="table-responsive">
+    <table class="styled-table table-striped table-hover table-sm" id="tb_marcas">
+      <thead class="table-dark text-start align-middle">
+        <tr>
+          <th class="text-start">ID</th>
+          <th class="text-start">Marca</th>
+          <th class="text-start">Modelo</th>
+          <th class="text-center">Editar</th>
+          <th class="text-center">Eliminar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in dato %}
+        <tr>
+          <td class="text-start">{{ d.id }}</td>
+          <td class="text-start">{{ d.marca }}</td>
+          <td class="text-start">{{ d.modelo }}</td>
+          <td>
+            <button class="btn btn-primary btn-sm px-2 py-1 editBtn" data-id="{{ d.id }}" title="Editar">
+              <i class="bi bi-pencil-fill me-1"></i> Editar
+            </button>
+          </td>
+          <td>
+            <button class="btn btn-danger btn-sm px-2 py-1 deleteBtn" data-id="{{ d.id }}" data-marca="{{ d.marca }}" title="Eliminar">
+              <i class="bi bi-trash-fill me-1"></i> Eliminar
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center text-muted">No hay marcas registradas.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Insertar -->
+<div class="modal fade" id="insertarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <form id="formInsertar" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar Marca</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Marca</label>
+          <input type="text" name="marca" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Modelo</label>
+          <input type="text" name="modelo" class="form-control" required>
+        </div>
+      </div>
+      <div class="modal-footer d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-success">Insertar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="editarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <form id="formEditar" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Marca</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="id" id="editId">
+        <div class="mb-3">
+          <label class="form-label">Marca</label>
+          <input type="text" name="marca" id="editMarca" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Modelo</label>
+          <input type="text" name="modelo" id="editModelo" class="form-control" required>
+        </div>
+      </div>
+      <div class="modal-footer d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Confirmar Eliminación -->
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="mensajeEliminar">¿Estás seguro de que deseas eliminar esta marca? Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="confirmEliminarBtn" class="btn btn-danger">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const buscador = document.getElementById('buscador');
+  const tbody = document.querySelector('#tb_marcas tbody');
+  const formInsertar = document.getElementById('formInsertar');
+  const formEditar = document.getElementById('formEditar');
+  const confirmModal = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
+  const confirmEliminarBtn = document.getElementById('confirmEliminarBtn');
+  const mensajeEliminar = document.getElementById('mensajeEliminar');
+  let idAEliminar = null;
+  let timer;
+
+  // =========================
+  // Buscador optimizado con resaltado solo en texto
+  // =========================
+  buscador.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const query = buscador.value.trim().toLowerCase();
+      const rows = tbody.querySelectorAll('tr');
+      let found = false;
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length === 0) return; // Saltar filas vacías o mensaje
+
+        let match = false;
+
+        cells.forEach((cell, index) => {
+          if (index > 2) return; // Solo ID, Marca y Modelo
+          if (!cell.dataset.original) cell.dataset.original = cell.textContent;
+          const originalText = cell.dataset.original;
+
+          if (!query || originalText.toLowerCase().includes(query)) {
+            match = true;
+            if (query) {
+              cell.innerHTML = originalText.replace(new RegExp(`(${query})`, 'gi'), '<mark>$1</mark>');
+            } else {
+              cell.textContent = originalText;
+            }
+          } else {
+            cell.textContent = originalText;
+          }
+        });
+
+        row.style.display = match ? '' : 'none';
+        if (match) found = true;
+      });
+
+      // Mensaje "No encontrado"
+      let noRow = document.getElementById('noResults');
+      if (!found) {
+        if (!noRow) {
+          const noRowElem = document.createElement('tr');
+          noRowElem.id = 'noResults';
+          noRowElem.innerHTML = `<td colspan="5" class="text-center text-danger">No se encontraron resultados.</td>`;
+          tbody.appendChild(noRowElem);
+        }
+      } else if (noRow) {
+        noRow.remove();
+      }
+    }, 300);
+  });
+
+  // =========================
+  // Insertar
+  // =========================
+  formInsertar.addEventListener('submit', e => {
+    e.preventDefault();
+    const datos = new FormData(formInsertar);
+    fetch('/insertar_marca_ajax', { method: 'POST', body: datos })
+      .then(res => res.json())
+      .then(resp => {
+        if (resp.success) location.reload();
+        else alert(resp.message || 'Error al insertar la marca.');
+      })
+      .catch(() => alert('Error al conectar con el servidor.'));
+  });
+
+  // =========================
+  // Editar y eliminar
+  // =========================
+  document.addEventListener('click', e => {
+    if (e.target.closest('.editBtn')) {
+      const id = e.target.closest('.editBtn').dataset.id;
+      fetch(`/get_marca/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('editId').value = data.id;
+          document.getElementById('editMarca').value = data.marca;
+          document.getElementById('editModelo').value = data.modelo;
+          new bootstrap.Modal(document.getElementById('editarModal')).show();
+        })
+        .catch(() => alert('Error al obtener los datos de la marca.'));
+    }
+
+    if (e.target.closest('.deleteBtn')) {
+      const btn = e.target.closest('.deleteBtn');
+      idAEliminar = btn.dataset.id;
+      const marca = btn.dataset.marca;
+      mensajeEliminar.textContent = `¿Estás seguro de que deseas eliminar la marca "${marca}"? Esta acción no se puede deshacer.`;
+      confirmModal.show();
+    }
+  });
+
+  confirmEliminarBtn.addEventListener('click', () => {
+    if (!idAEliminar) return;
+    fetch(`/eliminar_marca/${idAEliminar}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: idAEliminar })
+    })
+    .then(res => res.json())
+    .then(resp => {
+      if (resp.success) location.reload();
+      else alert(resp.message || 'Error al eliminar la marca.');
+    })
+    .catch(() => alert('Error al conectar con el servidor.'))
+    .finally(() => {
+      confirmModal.hide();
+      idAEliminar = null;
+    });
+  });
+
+  formEditar.addEventListener('submit', e => {
+    e.preventDefault();
+    const datos = new FormData(formEditar);
+    fetch('/editar_marca_ajax', { method: 'POST', body: datos })
+      .then(res => res.json())
+      .then(resp => {
+        if (resp.success) location.reload();
+        else alert(resp.message || 'Error al actualizar la marca.');
+      })
+      .catch(() => alert('Error al conectar con el servidor.'));
+  });
+});
+</script>
+
+</body>
+</html>

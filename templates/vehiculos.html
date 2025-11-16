@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de vehículos</title>
+
+<!-- Bootstrap y Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/marcas.css') }}">
+</head>
+<body>
+<div class="container-fluid p-3">
+  <h1 class="text-center mb-4">Registro de vehículos</h1>
+
+  <div class="text-center mb-3">
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#insertarModal">
+      Registrar vehículo
+    </button>
+  </div>
+
+  <div class="input-group justify-content-center my-4" style="max-width: 600px; margin: auto;">
+    <span class="input-group-text bg-primary text-white d-flex align-items-center justify-content-center" style="height: 50px;">
+      <i class="bi bi-search"></i>
+    </span>
+    <input type="text" id="buscador" class="form-control" placeholder="Buscar Marcas" style="height: 50px;" autofocus>
+  </div>
+
+  <div class="table-responsive">
+    <table class="styled-table table-striped table-hover table-sm" id="tb_vehiculos">
+      <thead class="text-start align-middle">
+        <tr>
+          <th >ID</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th>Año</th>
+          <th>Chasis</th>
+          <th>Color</th>
+          <th>Tipo</th>
+          <th>Combustible</th>
+          <th>Transmisión</th>
+          <th class="text-center">Editar</th>
+          <th class="text-center">Eliminar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Carga inicial por AJAX -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Insertar -->
+<div class="modal fade" id="insertarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form action="{{ url_for('insertar_vehiculo') }}" method="POST" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar Vehículo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label>Marca</label>
+        <input type="text" name="marca" class="form-control" required>
+        <label>Modelo</label>
+        <input type="text" name="modelo" class="form-control" required>
+        <label>Año</label>
+        <input type="number" name="anio" class="form-control" required>
+        <label>Chasis</label>
+        <input type="text" name="chasis" class="form-control" required>
+        <label>Color</label>
+        <input type="text" name="color" class="form-control" required>
+        <label>Tipo</label>
+        <input type="text" name="tipo" class="form-control" required>
+        <label>Combustible</label>
+        <input type="text" name="combustible" class="form-control" required>
+        <label>Transmisión</label>
+        <input type="text" name="transmision" class="form-control" required>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-success">Insertar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="editarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form action="{{ url_for('editar_vehiculo') }}" method="POST" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Vehículo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId" name="id">
+        <label>Marca</label>
+        <input type="text" id="editMarca" name="marca" class="form-control" required>
+        <label>Modelo</label>
+        <input type="text" id="editModelo" name="modelo" class="form-control" required>
+        <label>Año</label>
+        <input type="number" id="editAnio" name="anio" class="form-control" required>
+        <label>Chasis</label>
+        <input type="text" id="editChasis" name="chasis" class="form-control" required>
+        <label>Color</label>
+        <input type="text" id="editColor" name="color" class="form-control" required>
+        <label>Tipo</label>
+        <input type="text" id="editTipo" name="tipo" class="form-control" required>
+        <label>Combustible</label>
+        <input type="text" id="editCombustible" name="combustible" class="form-control" required>
+        <label>Transmisión</label>
+        <input type="text" id="editTransmision" name="transmision" class="form-control" required>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Deseas eliminar este vehículo? Esta acción no se puede deshacer.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a id="btnConfirmarEliminar" href="#" class="btn btn-danger">Eliminar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tbody = document.querySelector('#tb_vehiculos tbody');
+  const buscador = document.getElementById('buscador');
+  const modalEliminar = new bootstrap.Modal(document.getElementById('confirmarEliminarModal'));
+  const btnConfirmarEliminar = document.getElementById('btnConfirmarEliminar');
+  let timer = null;
+
+  // Función para renderizar tabla
+  function renderTabla(data) {
+    tbody.innerHTML = '';
+    if (!data.length) {
+      tbody.innerHTML = `<tr><td colspan="11" class="text-center text-danger">No se encontraron resultados.</td></tr>`;
+      return;
+    }
+    data.forEach(v => {
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td>${v.id}</td>
+          <td>${v.marca}</td>
+          <td>${v.modelo}</td>
+          <td>${v.anio}</td>
+          <td>${v.chasis}</td>
+          <td>${v.color}</td>
+          <td>${v.tipo}</td>
+          <td>${v.combustible}</td>
+          <td>${v.transmision}</td>
+          <td class="text-center">
+            <button class="btn btn-primary btn-sm editBtn" data-id="${v.id}">
+              <i class="bi bi-pencil-square"></i> Editar
+            </button>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-danger btn-sm deleteBtn" data-id="${v.id}">
+              <i class="bi bi-trash"></i> Eliminar
+            </button>
+          </td>
+        </tr>
+      `);
+    });
+  }
+
+  // Carga inicial
+  function cargarVehiculos(q='') {
+    fetch(`/buscar_vehiculo_ajax?q=${encodeURIComponent(q)}`)
+      .then(res => res.json())
+      .then(renderTabla);
+  }
+
+  cargarVehiculos(); // Trae todos al iniciar
+
+  // Buscador con debounce
+  buscador.addEventListener('keyup', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      cargarVehiculos(buscador.value.trim());
+    }, 300);
+  });
+
+  // Eliminar
+  document.addEventListener('click', e => {
+    if (e.target.closest('.deleteBtn')) {
+      const id = e.target.closest('.deleteBtn').dataset.id;
+      btnConfirmarEliminar.href = `/eliminar_vehiculo/${id}`;
+      modalEliminar.show();
+    }
+  });
+
+  // Editar
+  document.addEventListener('click', e => {
+    if (e.target.closest('.editBtn')) {
+      const id = e.target.closest('.editBtn').dataset.id;
+      fetch(`/get_vehiculo/${id}`)
+        .then(res => res.json())
+        .then(v => {
+          document.getElementById('editId').value = v.id;
+          document.getElementById('editMarca').value = v.marca;
+          document.getElementById('editModelo').value = v.modelo;
+          document.getElementById('editAnio').value = v.anio;
+          document.getElementById('editChasis').value = v.chasis;
+          document.getElementById('editColor').value = v.color;
+          document.getElementById('editTipo').value = v.tipo;
+          document.getElementById('editCombustible').value = v.combustible;
+          document.getElementById('editTransmision').value = v.transmision;
+          new bootstrap.Modal(document.getElementById('editarModal')).show();
+        });
+    }
+  });
+});
+</script>
+</body>
+</html>

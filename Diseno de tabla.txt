@@ -1,0 +1,94 @@
+
+db almacen
+
+CREATE TABLE tb_marcas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  marca VARCHAR(100) NOT NULL,
+  modelo VARCHAR(100) NOT NULL
+);
+
+
+CREATE TABLE empleados (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    cedula VARCHAR(20) UNIQUE,            -- Documento de identidad
+    telefono VARCHAR(20),
+    correo VARCHAR(100) UNIQUE,
+    direccion VARCHAR(200),
+    cargo varchar (50) null,
+    estatus ENUM('ACTIVO', 'INACTIVO') DEFAULT 'ACTIVO',
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+CREATE TABLE tb_inventario_piezas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_marca INT NOT NULL,
+  anio YEAR,
+  descripcion TEXT NOT NULL,
+  cantidad INT DEFAULT 0,
+  almacen VARCHAR(100),
+  anaquel VARCHAR(50),
+  tramo VARCHAR(50),
+  estado VARCHAR(50),
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_marca) REFERENCES tb_marcas(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+
+CREATE TABLE tb_clientes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombres VARCHAR(100) NOT NULL,
+  apellidos VARCHAR(100) NOT NULL,
+  telefono VARCHAR(20),
+  correo VARCHAR(100),
+  direccion VARCHAR(200),
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE tb_vehiculos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  marca VARCHAR(100) NOT NULL,
+  modelo VARCHAR(100) NOT NULL,
+  anio YEAR NOT NULL,
+  chasis VARCHAR(50) UNIQUE NOT NULL,
+  color VARCHAR(50),
+  tipo ENUM('Automóvil','Camioneta','Camión','SUV','Moto','Otro') DEFAULT 'Automóvil',
+  combustible ENUM('Gasolina','Diésel','Eléctrico','Híbrido','Otro') DEFAULT 'Gasolina',
+  transmision ENUM('Manual','Automática','CVT','Otra') DEFAULT 'Manual'
+);
+
+
+
+CREATE TABLE tb_entregas_piezas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_cliente INT NOT NULL,
+  id_vehiculo INT NOT NULL,
+  id_marca INT NOT NULL,
+  id_inventario INT NOT NULL,
+  id_empleado INT NOT NULL,
+  cantidad INT NOT NULL DEFAULT 1,
+  orden VARCHAR(50),
+  observacion VARCHAR(255),
+  fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (id_cliente) REFERENCES tb_clientes(id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+
+  FOREIGN KEY (id_vehiculo) REFERENCES tb_vehiculos(id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+
+  FOREIGN KEY (id_marca) REFERENCES tb_marcas(id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+
+  FOREIGN KEY (id_inventario) REFERENCES tb_inventario(id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+  FOREIGN KEY (id_empleado) REFERENCES tb_empleados(id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+
+);

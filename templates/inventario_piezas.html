@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de piezas</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/marcas.css' ) }}">
+
+  <style>
+    .barcode-cell {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 60px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .barcode-cell svg {
+      display: block;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container-fluid p-3">
+  <h1 class="text-center mb-4">Registro de inventario de piezas</h1>
+
+  <div class="text-center mb-3">
+    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#insertarModal">
+      <i class="bi bi-plus-circle"></i> Registrar pieza
+    </button>
+  </div>
+
+  <!-- Buscador -->
+  <div class="input-group justify-content-center my-4" style="max-width: 600px; margin: auto;">
+    <span class="input-group-text bg-primary text-white d-flex align-items-center justify-content-center" style="height: 50px;">
+      <i class="bi bi-search"></i>
+    </span>
+    <input type="text" id="buscador" class="form-control" placeholder="Buscar por descripción" style="height: 50px;" autofocus>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-responsive">
+    <table class="styled-table table-striped table-hover table-sm" id="tb_inventario_piezas">
+      <thead class="text-start align-middle">
+        <tr>
+          <th>ID</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th>Año</th>
+          <th>Descripción</th>
+          <th>Cantidad</th>
+          <th>Almacén</th>
+          <th>Anaquel</th>
+          <th>Tramo</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th>Editar</th>
+          <th>Eliminar</th>
+          <th>Código</th>
+          <th>Imprimir</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in dato %}
+        <tr>
+          <td class="text-start">{{ d.id }}</td>
+          <td class="text-start">{{ d.marca }}</td>
+          <td class="text-start">{{ d.modelo }}</td>
+          <td class="text-start">{{ d.anio }}</td>
+          <td class="text-start">{{ d.descripcion }}</td>
+          <td class="text-start">{{ d.cantidad }}</td>
+          <td class="text-start">{{ d.almacen }}</td>
+          <td class="text-start">{{ d.anaquel }}</td>
+          <td class="text-start">{{ d.tramo }}</td>
+          <td class="text-start">{{ d.estado }}</td>
+          <td class="text-start">{{ d.fecha.strftime('%Y-%m-%d') if d.fecha else '' }}</td>
+          <td class="text-center">
+            <button class="btn btn-primary btn-sm editBtn" data-id="{{ d.id }}">
+              <i class="bi bi-pencil-square me-1"></i> Editar
+            </button>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-danger btn-sm deleteBtn" data-id="{{ d.id }}">
+              <i class="bi bi-trash me-1"></i> Eliminar
+            </button>
+          </td>
+          <td class="barcode-cell">
+            <svg id="barcode-{{ d.id }}" style="width:120px; height:40px;"></svg>
+          </td>
+          <td class="text-center">
+            <button class="btn btn-info btn-sm printBtn" data-id="{{ d.id }}">
+              <i class="bi bi-printer me-1"></i> Imprimir
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Insertar -->
+<div class="modal fade" id="insertarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form action="{{ url_for('insertar_inventario') }}" method="POST" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Registrar Nueva Pieza</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label>ID Marca</label>
+        <input type="text" name="id_marca" class="form-control" required>
+        <label>Año</label>
+        <input type="number" name="anio" class="form-control" required>
+        <label>Descripción</label>
+        <input type="text" name="descripcion" class="form-control" required>
+        <label>Cantidad</label>
+        <input type="number" name="cantidad" class="form-control" required>
+        <label>Almacén</label>
+        <input type="text" name="almacen" class="form-control" required>
+        <label>Anaquel</label>
+        <input type="text" name="anaquel" class="form-control"required>
+        <label>Tramo</label>
+        <input type="text" name="tramo" class="form-control"required>
+        <label>Estado</label>
+        <input type="text" name="estado" class="form-control"required>
+        <label>Fecha</label>
+        <input type="date" name="fecha" class="form-control" required>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-success">Registrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="editarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form action="{{ url_for('editar_inventario') }}" method="POST" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar Pieza</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId" name="id">
+        <label>ID Marca</label>
+        <input type="text" id="editId_marca" name="id_marca" class="form-control" required>
+        <label>Año</label>
+        <input type="number" id="editAnio" name="anio" class="form-control" required>
+        <label>Descripción</label>
+        <input type="text" id="editDescripcion" name="descripcion" class="form-control" required>
+        <label>Cantidad</label>
+        <input type="number" id="editCantidad" name="cantidad" class="form-control" required>
+        <label>Almacén</label>
+        <input type="text" id="editAlmacen" name="almacen" class="form-control"required>
+        <label>Anaquel</label>
+        <input type="text" id="editAnaquel" name="anaquel" class="form-control"required>
+        <label>Tramo</label>
+        <input type="text" id="editTramo" name="tramo" class="form-control"required>
+        <label>Estado</label>
+        <input type="text" id="editEstado" name="estado" class="form-control"required>
+        <label>Fecha</label>
+        <input type="date" id="editFecha" name="fecha" class="form-control" required>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Confirmación Eliminar -->
+<div class="modal fade" id="confirmarEliminarModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Confirmar eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="mensajeConfirmacion">¿Estás seguro de eliminar esta pieza?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // Generar códigos de barras (ID + Año)
+  document.querySelectorAll('#tb_inventario_piezas tbody tr').forEach(tr => {
+    const id = tr.querySelector('td:first-child').textContent.trim();
+    const anio = tr.children[3].textContent.trim();
+    const valorCodigo = `${id}-${anio}`;
+    const svg = tr.querySelector('svg');
+    JsBarcode(svg, valorCodigo, {
+      format: "CODE128",
+      lineColor: "#000",
+      width: 1.5,
+      height: 40,
+      displayValue: true,
+      fontSize: 10,
+      margin: 0
+    });
+  });
+
+  // Buscador con resaltado
+  const buscador = document.getElementById('buscador');
+  buscador.addEventListener('input', () => {
+    const filtro = buscador.value.toLowerCase();
+    document.querySelectorAll('#tb_inventario_piezas tbody tr').forEach(tr => {
+      let encontrado = false;
+      [...tr.children].forEach((td, index) => {
+        if(index >=0 && index <=10){
+          const text = td.textContent.toLowerCase();
+          if(text.includes(filtro) && filtro !== ''){
+            td.innerHTML = td.textContent.replace(new RegExp(filtro, 'gi'), match => `<mark style="background-color:yellow">${match}</mark>`);
+            encontrado = true;
+          } else {
+            td.innerHTML = td.textContent;
+          }
+        } else {
+          if(td.textContent.toLowerCase().includes(filtro)) encontrado = true;
+        }
+      });
+      tr.style.display = encontrado || filtro === '' ? '' : 'none';
+    });
+  });
+
+  // === BOTÓN IMPRIMIR PROFESIONAL ===
+  document.body.addEventListener('click', e => {
+    const btn = e.target.closest('.printBtn');
+    if (!btn) return;
+
+    const tr = btn.closest('tr');
+    const id = tr.querySelector('td:first-child').textContent.trim();
+    const anio = tr.children[3].textContent.trim();
+    const valorCodigo = `${id}-${anio}`;
+    const marca = tr.children[1].textContent.trim();
+    const modelo = tr.children[2].textContent.trim();
+    const descripcion = tr.children[4].textContent.trim();
+    const svg = tr.querySelector('svg').outerHTML;
+
+    const w = window.open('', '_blank', 'fullscreen=yes');
+    w.document.write(`
+      <html>
+      <head>
+        <title>Etiqueta de Inventario</title>
+        <style>
+          @page { size: A4; margin: 20mm; }
+          body { font-family: Arial, sans-serif; text-align: center; background-color: #fff; padding: 30px; }
+          .etiqueta {
+            border: 2px solid #000;
+            border-radius: 10px;
+            padding: 20px;
+            width: 400px;
+            margin: 40px auto;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+          }
+          h2 { font-size: 20px; margin-bottom: 10px; }
+          .logo { width: 100px; height: auto; margin-bottom: 10px; }
+          .datos p { margin: 5px 0; font-size: 14px; text-align: left; }
+          .codigo { margin-top: 15px; }
+          @media print {
+            body { background-color: white; -webkit-print-color-adjust: exact; }
+            .etiqueta { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="etiqueta">
+          <img src="/static/img/logo.png" class="logo" alt="Logo">
+          <h2>Chico auto paint</h2>
+          <div class="datos">
+            <p><strong>Marca:</strong> ${marca}</p>
+            <p><strong>Modelo:</strong> ${modelo}</p>
+            <p><strong>Año:</strong> ${anio}</p>
+            <p><strong>Descripción:</strong> ${descripcion}</p>
+            <p><strong>Código:</strong> ${valorCodigo}</p>
+          </div>
+          <div class="codigo">${svg}</div>
+        </div>
+        <script>
+          window.onload = function() {
+            window.focus();
+            window.print();
+            window.onafterprint = function() { window.close(); }
+          }
+        <\/script>
+      </body>
+      </html>
+    `);
+    w.document.close();
+  });
+
+  // Editar
+  document.body.addEventListener('click', e => {
+    const btn = e.target.closest('.editBtn');
+    if (!btn) return;
+    const id = btn.dataset.id;
+    fetch(`/get_inventario/${id}`)
+      .then(res => res.ok ? res.json() : Promise.reject('No se pudo obtener la pieza'))
+      .then(data => {
+        if(data.error) return alert('Error: ' + data.error);
+        document.getElementById('editId').value = data.id;
+        document.getElementById('editId_marca').value = data.id_marca;
+        document.getElementById('editAnio').value = data.anio;
+        document.getElementById('editDescripcion').value = data.descripcion;
+        document.getElementById('editCantidad').value = data.cantidad;
+        document.getElementById('editAlmacen').value = data.almacen || '';
+        document.getElementById('editAnaquel').value = data.anaquel || '';
+        document.getElementById('editTramo').value = data.tramo || '';
+        document.getElementById('editEstado').value = data.estado || '';
+        document.getElementById('editFecha').value = data.fecha || '';
+        new bootstrap.Modal(document.getElementById('editarModal')).show();
+      })
+      .catch(err => alert('Ocurrió un error al cargar los datos.'));
+  });
+
+  // Eliminar con confirmación
+  let idEliminar = null;
+  document.body.addEventListener('click', e => {
+    const btn = e.target.closest('.deleteBtn');
+    if (!btn) return;
+    idEliminar = btn.dataset.id;
+    document.getElementById('mensajeConfirmacion').textContent = 
+      `¿Seguro que deseas eliminar la pieza con ID ${idEliminar}?`;
+    new bootstrap.Modal(document.getElementById('confirmarEliminarModal')).show();
+  });
+
+  document.getElementById('btnConfirmarEliminar').addEventListener('click', () => {
+    if (!idEliminar) return;
+    fetch(`/eliminar_inventario/${idEliminar}`, { method: 'DELETE' })
+      .then(res => res.json())
+      .then(data => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('confirmarEliminarModal'));
+        modal.hide();
+        if (data.success) {
+          mostrarMensaje('✅ Pieza eliminada correctamente', 'success');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          mostrarMensaje('❌ No se pudo eliminar la pieza', 'danger');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        mostrarMensaje('⚠️ Error al intentar eliminar la pieza.', 'warning');
+      });
+  });
+
+  function mostrarMensaje(texto, tipo = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} position-fixed top-0 start-50 translate-middle-x mt-3 shadow`;
+    alertDiv.style.zIndex = '2000';
+    alertDiv.textContent = texto;
+    document.body.appendChild(alertDiv);
+    setTimeout(() => alertDiv.remove(), 2500);
+  }
+
+});
+</script>
+</body>
+</html>

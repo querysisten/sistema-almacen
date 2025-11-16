@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu principar</title>
+  <style>
+    /* Estilos generales del menú */
+    ul.menu {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      background-color: #0b1172;
+      overflow: hidden;
+      font-size: 25px;
+      position: fixed; /* Fija el menú arriba */
+      top: 0;
+      width: 100%;
+      z-index: 1000; /* Para que quede encima de la imagen */
+    }
+
+    ul.menu li {
+      float: left;
+    }
+
+    ul.menu li a {
+      display: block;
+      color: white;
+      padding: 14px 20px;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    ul.menu li a:hover {
+      background-color: #0d1ae3;
+    }
+
+    /* Imagen de fondo en pantalla completa */
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: url("{{ url_for('static', filename='img/almacen2.png') }}") no-repeat center center fixed;
+      background-size: cover; /* Hace que la imagen cubra toda la pantalla */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Menú de enlaces -->
+  <ul class="menu">
+    <li><a href="marcas.html" target="_blank">Marcas</a></li>
+    <li><a href="empleados.html" target="_blank">Empleados</a></li>
+    <li><a href="cliente.html" target="_blank">Clientes</a></li>
+    <li><a href="inventario_piezas.html" target="_blank">Inventario de piezas</a></li>
+    <li><a href="vehiculos.html" target="_blank">Registro de vehículos</a></li>
+    <li><a href="entregas_piezas.html" target="_blank">Entrega de piezas</a></li>
+    <li><a href="consulta_piezas_entregada.html" target="_blank">Consulta piezas entregadas</a></li>
+     <li><a href="consulta_inventario.html" target="_blank">Consulta inventario</a></li>
+    <li><a href="#nosotros">Nosotros</a></li>
+  </ul>
+
+</body>
+</html>

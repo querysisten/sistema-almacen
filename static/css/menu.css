@@ -1,0 +1,101 @@
+/* Reset de márgenes y paddings */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Fondo de pantalla completa */
+    body {
+        font-family: Arial, sans-serif;
+        background: url('almacen.png') no-repeat center top fixed; /* Cambia 'fondo.jpg' por tu imagen */
+        background-size: cover;
+        min-height: 100vh;
+        position: relative;
+    }
+
+    /* Overlay para mejorar legibilidad */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.4); /* efecto oscuro semi-transparente */
+        z-index: 500;
+    }
+
+    /* Contenido encima del overlay */
+    body > *:not(.overlay) {
+        position: relative;
+        z-index: 1000;
+    }
+
+    /* Menú fijo flotante */
+    nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #0b1172; 
+        display: flex;
+        justify-content: center;
+        z-index: 1000;
+        padding: 10px 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .menu {
+        display: flex;
+        list-style: none;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .menu li a {
+        text-decoration: none;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .menu li a:hover {
+        background-color: rgba(95, 22, 214, 0.2);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+
+    /* Título centrado debajo del menú */
+    h1 {
+        color: white;
+        text-align: center;
+        text-shadow: 2px 2px 5px black;
+        margin-top: 100px; /* espacio debajo del menú flotante */
+        display: inline-block;
+        background-color: rgba(0,0,0,0.4);
+        padding: 15px 30px;
+        border-radius: 10px;
+    }
+
+    /* Responsive para móviles */
+    @media (max-width: 768px) {
+        .menu {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .menu li a {
+            width: 70%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-top: 140px;
+            padding: 10px 20px;
+        }
+
+    }
